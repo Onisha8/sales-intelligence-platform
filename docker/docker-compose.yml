@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: sales_pg
+    environment:
+      POSTGRES_USER: sales_user
+      POSTGRES_PASSWORD: sales_pass
+      POSTGRES_DB: sales_dw
+    ports:
+      - "5432:5432"
+    volumes:
+      - sales_pg_data:/var/lib/postgresql/data
+
+volumes:
+  sales_pg_data:
