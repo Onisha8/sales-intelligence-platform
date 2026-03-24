@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# dbt generated artifacts
+dbt/**/target/
+dbt/**/logs/
+dbt/**/.user.yml
+
+# Local dbt profile (keep out of public repo)
+dbt/**/profiles.yml
+
+# Python build/test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local exports if regenerated often
+# Uncomment this if you do NOT want generated csv outputs tracked
+# exports/*.csv
