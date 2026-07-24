@@ -1,0 +1,22 @@
+# --- Data pipeline ---
+pandas==3.0.2
+SQLAlchemy==2.0.51
+psycopg2-binary==2.9.12
+openpyxl==3.1.5
+python-dotenv==1.2.2
+
+# --- dbt ---
+dbt-core==1.12.0
+dbt-postgres==1.11.0
+
+# --- Forecasting ---
+statsmodels==0.14.6
+scikit-learn==1.8.0
+
+# --- Dashboard ---
+streamlit==1.60.0
+plotly==6.9.0
+
+# --- Dev / CI ---
+black==24.4.2
+flake8==7.0.0

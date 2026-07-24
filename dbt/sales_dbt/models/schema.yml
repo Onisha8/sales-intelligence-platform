@@ -16,12 +16,12 @@ models:
       - name: segment
         tests:
           - accepted_values:
-              values: ["Consumer", "Corporate", "Home Office"]
+              arguments:
+                values: ["Consumer", "Corporate", "Home Office"]
 
   - name: stg_zip_code
     columns:
       - name: postal_code
-        tests: [not_null]
         tests:
           - unique
           - not_null

@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: sales_user
+          POSTGRES_PASSWORD: sales_pass
+          POSTGRES_DB: sales_dw
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sales_user -d sales_dw"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql+psycopg2://sales_user:sales_pass@localhost:5432/sales_dw
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint (black + flake8)
+        run: |
+          black --check pipelines dashboard
+          flake8 pipelines dashboard --max-line-length=100 --extend-ignore=E203,W503
+
+      - name: Load raw data into the warehouse
+        run: python pipelines/load_raw_from_excel.py
+
+      - name: Configure dbt profile
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml <<EOF
+          sales_dbt:
+            target: ci
+            outputs:
+              ci:
+                type: postgres
+                host: localhost
+                port: 5432
+                user: sales_user
+                pass: sales_pass
+                dbname: sales_dw
+                schema: analytics
+                threads: 4
+          EOF
+
+      - name: dbt run
+        working-directory: dbt/sales_dbt
+        run: dbt run
+
+      - name: dbt test
+        working-directory: dbt/sales_dbt
+        run: dbt test
+
+      - name: Export mart to CSV
+        run: python pipelines/export_mart_to_csv.py
+
+      - name: Run forecasting pipeline
+        run: python pipelines/forecast_sales.py --horizon 14
+
+      - name: Smoke-test the dashboard imports
+        run: python -c "import ast; ast.parse(open('dashboard/app.py').read())"
